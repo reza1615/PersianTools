@@ -1,4 +1,4 @@
-This project attemts to solve wrong dictation, typo and ZWNJ problem of Persian texts.
+This project attempts to solve wrong dictation, typo and ZWNJ problem of Persian texts.
 
 This project works with python 2.7
 
