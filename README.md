@@ -5,9 +5,14 @@ This project works with python 2.7
 
 Persian text editor.py: core library based on fa.wikipedia abarabzar JS tool (it is tested couple of years at fa.wikipedia by many users)
 
-PersianPptxEditor.py: edits Powerpoint files
+PersianPptxEditor_for_windows.py edits Powerpoint files based on Windows ApI (it doesn't change text's format)
 
-Installation
+PersianPptxEditor_for_windows.py Installation:
+    #pip install pypiwin32
+
+PersianPptxEditor.py: edits Powerpoint files (it changes text's format)
+
+PersianPptxEditor.py Installation:
 
     #For opening pptx you should install some libraries. run these commands 
     
