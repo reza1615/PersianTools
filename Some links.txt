@@ -1,0 +1,9 @@
+<div dir="rtl">
+
+این موارد به علاوهٔ موارد بیشتر در ابزار زبان‌ها تعبیه کرده ایم
+ریجکس‌های ویراستیار از [اینجا](http://www.virastyar.ir/repository/Data/punctuation.regx)
+بن افعال ویراستیار از [اینجا](http://www.virastyar.ir/repository/Data/persian.stem)
+توابع تمیزکاری ابزار ویکی‌پدیای فارسی [اینجا](https://fa.wikipedia.org/wiki/%D9%85%D8%AF%DB%8C%D8%A7%D9%88%DB%8C%DA%A9%DB%8C:Gadget-Extra-Editbuttons-Functions.js)
+ابزار تمیزکاری ویکی‌پدیای فارسی کتابخانهٔ مواردی که فاصلهٔ مجازی نیاز دارند [اینجا](https://fa.wikipedia.org/wiki/%D9%85%D8%AF%DB%8C%D8%A7%D9%88%DB%8C%DA%A9%DB%8C:Gadget-Extra-Editbuttons-Dictionary.js)
+خود ابزار [اینجا](https://fa.wikipedia.org/wiki/%D9%85%D8%AF%DB%8C%D8%A7%D9%88%DB%8C%DA%A9%DB%8C:Gadget-Extra-Editbuttons.js)
+
