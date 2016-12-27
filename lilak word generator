@@ -1,0 +1,263 @@
+#!/usr/bin/python
+# -*- coding: utf-8  -*-
+import codecs
+import re
+dict_path = u'C:/Users\\Reza\\Desktop\\fa_IR.dic'
+aff_path = u'C:/Users\\Reza\\Desktop\\fa_IR.aff'
+outpath = u"C:/Users\\Reza\\Desktop\\our_words.txt"
+
+arabicDigits = ur'0123456789'
+arabicIndicDigits = ur'٠١٢٣٤٥٦٧٨٩'
+
+# نویسه\u200cهای غیرفارسی ي-ك-ە و موارد مشابه پیش از تبدیل به نویسهٔ فارسی در سایر ریجکس\u200cها باید به عنوان کاراکتر فارسی شناخته شوند.
+
+similarPersianCharacters = ur'\u0643\uFB91\uFB90\uFB8F\uFB8E\uFEDC\uFEDB\uFEDA\uFED9\u0649\uFEEF\u064A\u06C1\u06D5\u06BE\uFEF0-\uFEF4'
+vowels = ur'\u064B-\u0650\u0652\u0670'
+persianCharacters = ur'\u0621-\u0655\u067E\u0686\u0698\u06AF\u06A9\u0643\u06AA\uFED9\uFEDA\u06CC\uFEF1\uFEF2' + similarPersianCharacters
+persianCharactersNoVowels = ur'\u0621-\u064A\u0653-\u0655\u067E\u0686\u0698\u06AF\u06A9\u0643\u06AA\uFED9\uFEDA\u06CC\uFEF1\uFEF2' + similarPersianCharacters
+persianDigits = ur'۰۱۲۳۴۵۶۷۸۹'
+hamza = ur'\u0654'
+NASB = u'\u064b'
+ZAMM = u'\u064c'
+persianGlyphs_end={u"ﺏﺐ":u"ب",
+                    u"ﭖﭗ":u"پ",
+                    u"ﺕﺖ":u"ت",
+                    u"ﺙﺚ":u"ث",
+                    u"ﺝﺞ":u"ج",
+                    u"ﭺﭻ":u"چ",
+                    u"ﺡﺢ":u"ح",
+                    u"ﺥﺦ":u"خ",
+                    u"ﺱﺲ":u"س",
+                    u"ﺵﺶ":u"ش",
+                    u"ﺹﺺ":u"ص",
+                    u"ﺽﺾ":u"ض",
+                    u"ﻁﻂ":u"ط",
+                    u"ﻅﻆ":u"ظ",
+                    u"ﻉﻊ":u"ع",
+                    u"ﻍﻎ":u"غ",
+                    u"ﻑﻒ":u"ف",
+                    u"ﻕﻖ":u"ق",
+                    u"ﮎﮏﻙﻚ":u"ک",
+                    u"ﮒﮓ":u"گ",
+                    u"ﻝﻞ":u"ل",
+                    u"ﻡﻢ":u"م",
+                    u"ﻥﻦ":u"ن",
+                    u"ﻩﻪ":u"ه",
+                    u"ﮤﮥ":u"هٔ",
+                    u"ﯼﯽﻯﻰﻱﻲ":u"ی",
+                    u"ﺉﺊ":u"ئ"}
+persianGlyphs_middle={u"ﺃﺃﺄ":u"أ",
+                        u"ﺁﺁﺂ":u"آ",
+                        u"ﺇﺈﺇ":u"إ",
+                        u"ﺍﺎ":u"ا",
+                        u"ﺑﺒ":u"ب",
+                        u"ﭘﭙ":u"پ",
+                        u"ﺗﺘ":u"ت",
+                        u"ﺛﺜ":u"ث",
+                        u"ﺟﺠ":u"ج",
+                        u"ﭼﭽ":u"چ",
+                        u"ﺣﺤ":u"ح",
+                        u"ﺧﺨ":u"خ",
+                        u"ﺩﺪ":u"د",
+                        u"ﺫﺬ":u"ذ",
+                        u"ﺭﺮ":u"ر",
+                        u"ﺯﺰ":u"ز",
+                        u"ﮊﮋ":u"ژ",
+                        u"ﺳﺴ":u"س",
+                        u"ﺷﺸ":u"ش",
+                        u"ﺻﺼ":u"ص",
+                        u"ﺿﻀ":u"ض",
+                        u"ﻃﻄ":u"ط",
+                        u"ﻇﻈ":u"ظ",
+                        u"ﻋﻌ":u"ع",
+                        u"ﻏﻐ":u"غ",
+                        u"ﻓﻔ":u"ف",
+                        u"ﻗﻘ":u"ق",
+                        u"ﮐﮑﻛﻜ":u"ک",
+                        u"ﮔﮕ":u"گ",
+                        u"ﻟﻠ":u"ل",
+                        u"ﻣﻤ":u"م",
+                        u"ﻧﻨ":u"ن",
+                        u"ﻫﻬ":u"ه",
+                        u"ﻭﻮ":u"و",
+                        u"ﺅﺅﺆ":u"ؤ",
+                        u"ﯾﯿﻳﻴ":u"ی",
+                        u"ﺋﺌ":u"ئ",
+                        u"ﻻﻼ":u"لا",
+                        u"ﻹﻺ":u"لإ",
+                        u"ﻸﻷ":u"لأ",
+                        u"ﻵﻶ":u"لآ",
+                        u"ﺔﺓ":u"ة"}
+
+def normalizeZwnj(text):
+    text = re.sub(ur"\u200c{2,}", ur"\u200c",text)
+
+    # Clean ZWNJs after characters that don't conncet to the next letter
+
+    text = \
+        re.sub(ur"([۰-۹0-9إأةؤورزژاآدذ،؛,\:«»\\/@#$٪×\*\(\)ـ\-=\|ء])\u200c"
+                     , u'\\1',text)
+
+    # Clean ZWNJs before and after English characters
+
+    text = re.sub(ur"\u200c([\w])", u'\\1',text)
+    text = re.sub(ur"([\w])\u200c", u'\\1',text)
+
+    # Clean ZWNJs before and after Persian characters
+
+    text = re.sub(ur'\u200c([' + vowels + arabicIndicDigits
+                        + persianDigits + hamza + '])', u'\\1',text)
+    text = re.sub(ur'([' + arabicIndicDigits + '])\u200c', u'\\1',text)
+    text = re.sub(ur"([\w])\u200c", u'\\1',text)
+
+    # Clean ZWNJs after and before punctuation
+
+    text = re.sub(ur"\u200c([ء\n\s\[\]\.،«»\:\(\)\؛\؟\?\;\$\!\@\-\=\+\\|])", u'\\1',text)
+    text = re.sub(ur"([\n\s\[\.،«»\:\(\)\؛\؟\?\;\$\!\@\-\=\+\\|])\u200c", u'\\1',text)
+
+    # Clean ZWNJs before brakets which have sapce after\before them
+
+    text = re.sub(ur"\u200c(\][\s\n])", u'\\1',text)
+    text = re.sub(ur"([\n\s]\[)\u200c", u'\\1',text)
+    return text
+
+def toStandardPersianCharacters(text):
+    for i in persianGlyphs_end:
+        text = re.sub(ur'[' + i + ur']', persianGlyphs_end[i]+u'\u200c',text)
+    for i in persianGlyphs_middle:
+        text = re.sub(ur'[' + i + ur']', persianGlyphs_middle[i],text)
+    text = normalizeZwnj(text)
+    text = text.replace(ur"ك", ur'ک')  # Arabic
+    text = text.replace(ur"ڪ", ur'ک')  # Urdu
+    text = text.replace(ur"ﻙ", ur'ک')  # Pushtu
+    text = text.replace(ur"ﻚ", ur'ک')  # Uyghur
+    text = text.replace(ur"ي", ur'ی')  # Arabic
+    text = text.replace(ur"ى", ur'ی')  # Urdu
+    text = text.replace(ur"ے", ur'ی')  # Urdu
+    text = text.replace(ur"ۍ", ur'ی')  # Pushtu
+    text = text.replace(ur"ې", ur'ی')  # Uyghur
+    text = text.replace(ur"ہ", ur'ه')  # Convert &#x06C1; to &#x0647; ہہہہ to ههه
+    text = re.sub(ur"ە", u'ه\u200c',text)  # Kurdish
+    text = text.replace(ur"ھ", ur'ه')  # Kurdish
+    return text
+
+def cleaning(text):
+    text = re.sub(ur'([' + vowels + hamza + ur']){2,}', u'\\1',text)
+    text = re.sub(ur"ئء", ur'یء',text)  # two hamzes after each other
+    text = re.sub(ur"أء", ur'اء',text)  # two hamzes after each other
+    text = re.sub(ur"ؤء", ur'ؤ',text)  # two hamzes after each other
+    return text
+
+def aff_generat(aff_txt):
+    #PFX e1      0        می‌/FFUU        .
+    affdictEnd,affdictBegin,affdictj1,affdictj2,affdictj3,affdictj4,affdicty1={},{},{},{},{},{},{}
+    regex = ur"FX +(.*?) +(.*?) +(.*?)\/(.*?) +\."
+    count=0
+    for line in aff_txt.split(u'\n'):
+        count+=1
+        if u'FX' in line and u'/' in line:
+            match = re.findall(regex, line)
+            #print type(match[0][3])
+            if u'WW' in match[0][3]:
+                if match[0][0] in affdictEnd:
+                    mylist=affdictEnd[match[0][0]]
+                    mylist.append(match[0][2])
+                    affdictEnd[match[0][0]]=mylist
+                else:
+                    affdictEnd[match[0][0]]=[match[0][2]]
+                    print '-------------------'
+
+            if u'UU' in match[0][3]:
+                if match[0][0] in affdictBegin:
+                    mylist=affdictBegin[match[0][0]]
+                    mylist.append(match[0][2])
+                    affdictBegin[match[0][0]]=mylist
+                else:
+                    affdictBegin[match[0][0]]=[match[0][2]]
+
+            if u'j1' in match[0][3]:
+                if  match[0][0] in affdictj1:
+                    mylist=affdictj1[match[0][0]]
+                    mylist.append(match[0][2]+u'ها')
+                    affdictj1[match[0][0]]=mylist
+                else:
+                    affdictj1[match[0][0]]=[match[0][2]+u'ها']
+            if u'j2' in match[0][3]:
+                if match[0][0] in affdictj2:
+                    mylist=affdictj2[match[0][0]]
+                    mylist.append(match[0][2]+u'‌ها')
+                    affdictj2[match[0][0]]=mylist
+                else:
+                    affdictj2[match[0][0]]=[match[0][2]+u'‌ها']
+            if u'j3' in match[0][3]:
+                if match[0][0] in affdictj3:
+                    mylist=affdictj3[match[0][0]]
+                    mylist.append(match[0][2]+u'های')
+                    affdictj3[match[0][0]]=mylist
+                else:
+                    affdictj3[match[0][0]]=[match[0][2]+u'های']
+            if u'j4' in match[0][3]:
+                if match[0][0] in affdictj4:
+                    mylist=affdictj4[match[0][0]]
+                    mylist.append(match[0][2]+u'‌های')
+                    affdictj4[match[0][0]]=mylist
+                else:
+                    affdictj4[match[0][0]]=[match[0][2]+u'‌های']
+
+            if u'y1' in match[0][3]:
+                if match[0][0] in affdicty1:
+                    mylist=affdicty1[match[0][0]]
+                    mylist.append(match[0][2]+u'ی')
+                    affdicty1[match[0][0]]=mylist
+                else:
+                    affdicty1[match[0][0]]=[match[0][2]+u'ی']
+    return affdictBegin,[affdictEnd,affdictj1,affdictj2,affdictj3,affdictj4,affdicty1]
+
+def generate_words(dict_txt,aff_txt):
+    affdictBegin,dicts=aff_generat(aff_txt)
+    #آئودی/z3b2z5j2j4j6j8y2
+    words=[]
+    for word in dict_txt.split(u'\n'):
+        if u'/' in word:
+            word_base=word.split(u'/')[0]
+            words.append(word_base)
+            ExtentionList=word.split(u'/')[1]
+            for i in range(0,len(ExtentionList)-1,2):
+                item=ExtentionList[i:i+2]
+                for dictCase in dicts:
+                    if item in dictCase:
+                        for c in dictCase[item]:
+                            words.append(word_base+c)
+            for i in range(0,len(ExtentionList)-1,2):
+                item3=ExtentionList[i:i+2]
+                if item3 in affdictBegin:
+                    for b in affdictBegin[item3]:
+                        words.append(b+word_base)
+                        #word_base2=affdictBegin[item3]+word_base
+                        for id in range(0,len(ExtentionList)-1,2):
+                            item2=ExtentionList[id:id+2]
+                            for dictCase in dicts:
+                                if item2 in dictCase:
+                                    for a in dictCase[item2]:
+                                        words.append(b+word_base+a)
+        else:
+            words.append(word)
+    words=list(set(words))
+    return u'\n'.join(words)
+
+
+def run(dict_txt,aff_txt):
+    text = generate_words(dict_txt,aff_txt)
+    text = toStandardPersianCharacters(text)
+    text = cleaning(text)
+    return text
+ 
+ 
+dict_txt = codecs.open( dict_path,'r' ,'utf8' )
+dict_txt = dict_txt.read().replace(u'\r',u'')
+aff_txt = codecs.open( aff_path,'r' ,'utf8' )
+aff_txt = aff_txt.read().replace(u'\r',u'')#.replace(u'\u200c',u'')
+
+text=run(dict_txt,aff_txt)
+with codecs.open( outpath,mode = 'w',encoding = 'utf8' ) as f:
+    f.write( text)
